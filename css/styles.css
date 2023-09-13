@@ -1,3 +1,7 @@
+body {
+  background-color: #EDEDED;
+}
+
 .jumbotron,
 .card-body,
 .container,
@@ -190,4 +194,29 @@ a.custom-card:hover {
 
 .checked {
   color: orange;
+}
+#perfil-a {
+  position: relative;
+  top: 8px;
+  color:  rgba(255, 255, 255, 0.5);
+}
+#login-form {
+  margin-top: 50px;
+}
+#perfil-a:hover {
+  color: rgb(200, 196, 196);
+}
+.lead {
+  color: white;
+}
+
+@media screen and (max-width:1000px) {
+  .short-container {
+    width: 80%;
+    height: 420px;
+  }
+  .short-container-login {
+    width: 80%;
+    height: 300px;
+  }
 }

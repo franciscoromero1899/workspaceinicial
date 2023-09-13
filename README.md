@@ -1,6 +1,7 @@
 # workspace-inicial
-proyecto eComerce
 
-#-Faltán verifícaciones en el registro para que mande los datos correctos.
--Las redirecciones siguen dando problemas, las cambié a index.html.
--Podría agregarse un email de verifícación, con una API se podría hacer.
+# Entrega 3
+- parece que lo escribí a piñas, pero quedó el css.
+- guardar en el local storage el comentario realizado por el usuario
+# Mati entero wn
+
