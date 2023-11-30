@@ -3,20 +3,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logueado === 'false' || logueado === null) {
         window.location.href = '../login.html';
     }
-    document.getElementById('perfil-a').textContent = localStorage.getItem('nombreUsuario');
 
-    //consiguiendo info del producto
+    const token = localStorage.getItem('token')
+    console.log(localStorage.getItem('token'))
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'access-token' : token
+    }
+
+
+    document.getElementById('perfil-a').textContent = localStorage.getItem('nombreUsuario');
+    //---------------------------------consiguiendo el producto-----------------------------//
     let productId = localStorage.getItem('productID');
-    let urlPoducto = `https://japceibal.github.io/emercado-api/products/${productId}.json`;
-    fetch(urlPoducto)
+    let urlPoducto = `./json/products/${productId}.json`;
+    fetch(urlPoducto,{
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        }
+      })
     .then(response => response.json())
     .then(data => { 
         console.log(data)
         let container = document.createElement('DIV');
-        /* se crea un arreglo donde, por cada url que mande la API, se crea un elemento
-            HTML img con esa url.
-        */
-        let imagesHtml = data.images.map(image => `<img src="${image}">`).join('');
 
         let relatedProductsHtml = data.relatedProducts.map(product => `
             <div class="related-product" data-product-id="${product.id}">
@@ -30,15 +40,44 @@ document.addEventListener('DOMContentLoaded', () => {
             <h1>${data.name}</h1>
             <section id = 'img-and-seller-container'>
                 <div id="img-container">
-                    ${imagesHtml}
+
+                    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 4"></button>
+                        </div>
+                        <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="${data.images[0]}" class="d-block w-100" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="${data.images[1]}" class="d-block w-100" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="${data.images[2]}" class="d-block w-100" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="${data.images[3]}" class="d-block w-100" alt="...">
+                        </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    
                 </div>
                 <div id = 'aside-container'> 
                     <div id="buy-info">
                     <p class="price-and-sold">${data.cost} ${data.currency}</p>
                     <p class="price-and-sold">Vendidos: ${data.soldCount}</p>
-                    <input type = 'number' placeholder = 'Cantidad' min = '1'>
-                    <button>Comprar</button>
-                    <button>Añadir al carrito</button>
+                    <button id = 'add-to-cart'>Añadir al carrito</button>
 
                     <div id = 'seller-info'>
                         <h4>Nombre Vendedor</H4>
@@ -73,10 +112,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 location.reload()
             }
         });
+        //----------------------- Agregando al carrito ----------------//
+        const addToCart = () => {
+            // Construct the request body with the product details
+            const cartProduct = {
+                name: data.name,
+                soldCount: data.soldCount,
+                count: 1,
+                unitCost: data.cost,
+                image: data.images[0],
+                id: data.id,
+                currency: "USD"
+            };
+            // Make a POST request to add the product to the cart
+            fetch('http://localhost:3000/agregar-al-carrito', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(cartProduct),
+            })
+            .then((response) => response.json())
+            .then((result) => {
+                console.log(result.message);
+                alert('Producto Agregado Correctamente');
+            })
+            .catch((error) => {
+                console.error('Error al realizar la solicitud fetch:', error);
+                console.log('Response Status:', error.response.status);
+                console.log('Response Text:', error.response.text());
+            });
+        };
+        
+        // Event listener for the "Añadir al carrito" button
+        document.getElementById('add-to-cart').addEventListener('click', addToCart);
+
+        //quitar pantalla de carga
+        document.getElementById('loading-screen').style.display = 'none';
     })
     .catch(error => console.error('Error fetching data:', error));
     
-    //consiguiendo comentarios
+    //-------------------------- consiguiendo comentarios ---------------------------------//
     let urlComentarios = `https://japceibal.github.io/emercado-api/products_comments/${productId}.json`
     fetch(urlComentarios)
     .then(response => response.json())
@@ -131,8 +205,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('comment-inputs-container').style.display = 'none';
 
         //guardando en el localStorage el comentario.
+        // no terminado.
         localStorage.setItem('userComment',coment.innerHTML);
-        console.log(localStorage.getItem('userComment'))
+       
 
         //editar comentario
         let editable = false;;
@@ -150,4 +225,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
     })
+    
 });

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-
+    
     document.getElementById('sign-in-btn').addEventListener('click',(e)=>{
         e.preventDefault();
         //al hacer click en iniciar sesión se guarda en el local storage que está logueado, para que en el index no redirija.
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // se guardan los datos que el usuario colocó en el registro para luego usarlos en su perfil.
             localStorage.setItem('user-data', userData);
             localStorage.setItem('nombreUsuario',userData[0])
-            window.location.href = './index.html';
+            window.location.href = './login.html';
           }
     });
 });
